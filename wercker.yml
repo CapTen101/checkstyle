@@ -1,4 +1,4 @@
-box: maven:3.5.2-jdk-8
+box: maven:3.6.2-jdk-8
 
 build:
   steps:
@@ -90,15 +90,16 @@ build:
           echo "build is skipped ..."
         fi
 
-  - script:
-      name: NoErrorTest - Apache Apex
-      code: |
-        if [[ $RUN_JOB == 1 ]]; then
-          echo "Command: ./.ci/wercker.sh no-error-apex-core"
-          ./.ci/wercker.sh no-error-apex-core
-        else
-          echo "build is skipped ..."
-        fi
+# disabled till https://github.com/checkstyle/checkstyle/issues/7815
+#  - script:
+#      name: NoErrorTest - Apache Apex
+#      code: |
+#        if [[ $RUN_JOB == 1 ]]; then
+#          echo "Command: ./.ci/wercker.sh no-error-apex-core"
+#          ./.ci/wercker.sh no-error-apex-core
+#        else
+#          echo "build is skipped ..."
+#        fi
 
 # disabled till project migrate to config of 8.28
 #  - script:
@@ -174,6 +175,26 @@ build:
        fi
 
   - script:
+     name: NoErrorTest - contribution
+     code: |
+       if [[ $RUN_JOB == 1 ]]; then
+         echo "Command: ./.ci/wercker.sh no-error-contribution"
+         ./.ci/wercker.sh no-error-contribution
+       else
+         echo "build is skipped ..."
+       fi
+
+  - script:
+     name: NoErrorTest - methods distance
+     code: |
+       if [[ $RUN_JOB == 1 ]]; then
+         echo "Command: ./.ci/wercker.sh no-error-methods-distance"
+         ./.ci/wercker.sh no-error-methods-distance
+       else
+         echo "build is skipped ..."
+       fi
+
+  - script:
       name: NoExceptiontest - Apache Struts
       code: |
         if [[ $RUN_JOB == 1 ]]; then
@@ -193,17 +214,15 @@ build:
           echo "build is skipped ..."
         fi
 
-  # disabled until https://github.com/checkstyle/checkstyle/issues/7534
-  #
-  # - script:
-  #     name: NoExceptiontest - Checkstyle ,sevntu-checkstyle javadoc
-  #     code: |
-  #       if [[ $RUN_JOB == 1 ]]; then
-  #         echo "Command: ./.ci/wercker.sh no-exception-checkstyle-sevntu-javadoc"
-  #         ./.ci/wercker.sh no-exception-checkstyle-sevntu-javadoc
-  #       else
-  #         echo "build is skipped ..."
-  #       fi
+  - script:
+       name: NoExceptiontest - Checkstyle ,sevntu-checkstyle javadoc
+       code: |
+         if [[ $RUN_JOB == 1 ]]; then
+           echo "Command: ./.ci/wercker.sh no-exception-checkstyle-sevntu-javadoc"
+           ./.ci/wercker.sh no-exception-checkstyle-sevntu-javadoc
+         else
+           echo "build is skipped ..."
+         fi
 
   - script:
       name: NoExceptiontest - Guava
@@ -309,6 +328,12 @@ build:
   - script:
       name: Cleanup maven local repo
       code: |
+        echo "git status"
+        git status
+        echo "------"
+        echo "Content of .ci-temp folder:"
+        ls -la .ci-temp | cat
+        echo "------"
         find ${WERCKER_CACHE_DIR} -type d -name "*SNAPSHOT" -ls -exec rm -rf {} +
         echo "------"
         du -hs ${WERCKER_CACHE_DIR}
@@ -316,3 +341,4 @@ build:
         du -hs ${WERCKER_CACHE_DIR}/* | sort -h
         echo "------"
         du -hs * | sort -h
+
